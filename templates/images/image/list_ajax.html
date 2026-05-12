@@ -1,0 +1,10 @@
+{% load thumbnail %}
+{% for image in images %}
+  <div style="margin-bottom:20px;">
+    <a href="{{ image.get_absolute_url }}">
+      <img src="{% thumbnail image.image "200x200" crop="center" %}" alt="{{ image.title }}">
+    </a>
+    <p><a href="{{ image.get_absolute_url }}">{{ image.title }}</a>
+       &mdash; {{ image.total_likes }} like{{ image.total_likes|pluralize }}</p>
+  </div>
+{% endfor %}

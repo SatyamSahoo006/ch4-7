@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Bookmark an image{% endblock %}
+{% block content %}
+  <h1>Bookmark an image</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Bookmark it!</button>
+  </form>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ image.title }}{% endblock %}
+{% block content %}
+  <h1>{{ image.title }}</h1>
+  <p>Shared by <a href="{% url 'user_detail' image.user.username %}">{{ image.user.username }}</a>
+     &mdash; {{ image.created }}</p>
+  {% if image.description %}<p>{{ image.description }}</p>{% endif %}
+
+  {% load thumbnail %}
+  <img src="{% thumbnail image.image "300x300" crop="center" %}" alt="{{ image.title }}">
+
+  <p>
+    <span id="total-likes">{{ image.total_likes }}</span> like{{ image.total_likes|pluralize }}
+    {% if request.user.is_authenticated %}
+      <button id="like-btn"
+        data-id="{{ image.id }}"
+        data-action="{% if request.user in image.users_like.all %}unlike{% else %}like{% endif %}">
+        {% if request.user in image.users_like.all %}Unlike{% else %}Like{% endif %}
+      </button>
+    {% endif %}
+  </p>
+  {% if total_views is not None %}
+    <p>Total views: {{ total_views }}</p>
+  {% endif %}
+{% endblock %}
+{% block extra_head %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const btn = document.getElementById('like-btn');
+  if (!btn) return;
+  btn.addEventListener('click', function() {
+    const action = btn.dataset.action;
+    fetch('{% url "images:like" %}', {
+      method: 'POST',
+      headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'id=' + btn.dataset.id + '&action=' + action
+    }).then(r => r.json()).then(data => {
+      if (data.status === 'ok') {
+        document.getElementById('total-likes').textContent = data.total_likes;
+        btn.dataset.action = action === 'like' ? 'unlike' : 'like';
+        btn.textContent = action === 'like' ? 'Unlike' : 'Like';
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

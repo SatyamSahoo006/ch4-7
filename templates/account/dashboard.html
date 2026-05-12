@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+  <h1>Dashboard</h1>
+  <p>Welcome, {{ request.user.first_name|default:request.user.username }}!</p>
+
+  <h2>Activity stream</h2>
+  {% if actions %}
+    <ul>
+      {% for action in actions %}
+        <li>
+          <strong>{{ action.user.username }}</strong> {{ action.verb }}
+          {% if action.target %} {{ action.target }}{% endif %}
+          &mdash; <small>{{ action.created|timesince }} ago</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No activity yet. Follow people to see their actions here.</p>
+  {% endif %}
+{% endblock %}
+{% block sidebar %}
+  <p><a href="{% url 'edit' %}">Edit your profile</a></p>
+  <p><a href="{% url 'password_change' %}">Change password</a></p>
+{% endblock %}

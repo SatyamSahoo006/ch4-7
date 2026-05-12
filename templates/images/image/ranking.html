@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Image Ranking{% endblock %}
+{% block content %}
+  <h1>Most viewed images</h1>
+  {% for image in most_viewed %}
+    <p>{{ forloop.counter }}. <a href="{{ image.get_absolute_url }}">{{ image.title }}</a></p>
+  {% empty %}
+    <p>No ranking available (Redis not connected).</p>
+  {% endfor %}
+{% endblock %}

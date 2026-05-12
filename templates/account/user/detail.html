@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ user.username }}{% endblock %}
+{% block content %}
+  <h1>{{ user.get_full_name|default:user.username }}</h1>
+  {% if user.profile.photo %}
+    <img src="{{ user.profile.photo.url }}" width="80">
+  {% endif %}
+  <p>{{ user.profile.following.count }} following &bull; {{ user.profile.followers.count }} followers</p>
+
+  {% if request.user != user %}
+    {% with is_following=request.user.profile.following.all %}
+      <button id="follow-btn" data-id="{{ user.id }}"
+        data-action="{% if user.profile in is_following %}unfollow{% else %}follow{% endif %}">
+        {% if user.profile in is_following %}Unfollow{% else %}Follow{% endif %}
+      </button>
+    {% endwith %}
+  {% endif %}
+
+  <h2>Images by {{ user.username }}</h2>
+  {% for image in user.images_created.all %}
+    <div>
+      <a href="{{ image.get_absolute_url }}">{{ image.title }}</a>
+    </div>
+  {% empty %}
+    <p>No images yet.</p>
+  {% endfor %}
+{% endblock %}
+{% block extra_head %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const btn = document.getElementById('follow-btn');
+  if (!btn) return;
+  btn.addEventListener('click', function() {
+    const action = btn.dataset.action;
+    fetch('{% url "user_follow" %}', {
+      method: 'POST',
+      headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'id=' + btn.dataset.id + '&action=' + action
+    }).then(r => r.json()).then(data => {
+      if (data.status === 'ok') {
+        btn.dataset.action = action === 'follow' ? 'unfollow' : 'follow';
+        btn.textContent = action === 'follow' ? 'Unfollow' : 'Follow';
+      }
+    });
+  });
+});
+</script>
+{% endblock %}
