@@ -93,3 +93,5 @@ AUTHENTICATION_BACKENDS = [
     'account.authentication.EmailAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+STATIC_ROOT = '/home/satyam006/ch4-7/staticfiles'
